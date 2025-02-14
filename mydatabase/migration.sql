@@ -1,0 +1,42 @@
+USE mydatabase;
+
+CREATE TABLE language 
+(
+    ID VARCHAR(2) NOT NULL,
+    NAME VARCHAR(500) NOT NULL,
+    PRIMARY KEY (ID)
+);
+
+INSERT INTO language (ID, NAME) VALUES ('ru', 'Русский');
+INSERT INTO language (ID, NAME) VALUES ('en', 'English');
+INSERT INTO language (ID, NAME) VALUES ('de', 'Deutsch');
+INSERT INTO language (ID, NAME) VALUES ('it', 'Italiano');
+
+CREATE TABLE movie_title 
+(
+    MOVIE_ID INT NOT NULL,
+    LANGUAGE_ID VARCHAR(2) NOT NULL,
+    TITLE VARCHAR(500) NOT NULL,
+    PRIMARY KEY (MOVIE_ID, LANGUAGE_ID),
+    FOREIGN KEY FK_MOVIE_TITLE_MOVIE (MOVIE_ID)
+        REFERENCES movie(ID)
+        ON UPDATE RESTRICT
+        ON DELETE CASCADE,
+    FOREIGN KEY FK_MOVIE_TITLE_LANGUAGE (LANGUAGE_ID)
+        REFERENCES language(ID)
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT
+);
+
+INSERT INTO movie_title (MOVIE_ID, LANGUAGE_ID, TITLE)
+SELECT ID, 'ru', TITLE
+FROM movie;
+
+ALTER TABLE movie DROP COLUMN TITLE;
+
+SELECT * FROM movie_title;
+SELECT * FROM movie;
+SELECT * FROM director;
+SELECT * FROM actor;
+SELECT * FROM movie_actor;
+SELECT * FROM language;
