@@ -1,0 +1,67 @@
+USE work;
+
+-- Задание 2
+
+-- ИНДЕКСЫ
+
+-- для быстрого поиска актеров фильма
+CREATE INDEX idx_movie_person_role_movie ON movie_person_role (MOVIE_ID);
+-- для быстрого поиска фильмов, где участвовал человек
+CREATE INDEX idx_movie_person_role_person ON movie_person_role (PERSON_ID);
+-- для быстрого поиска по ролям
+CREATE INDEX idx_movie_person_role_role ON movie_person_role (ROLE_ID);
+-- для быстрого поиска фильмов по названию
+CREATE INDEX idx_movie_title_title ON movie_title (TITLE);
+
+-- КЕЙСЫ ЗАПРОСОВ
+
+-- поиск актеров фильма
+SELECT p.NAME 
+FROM movie_person_role mpr
+INNER JOIN person p ON mpr.PERSON_ID = p.ID
+INNER JOIN role r ON mpr.ROLE_ID = r.ID
+WHERE mpr.MOVIE_ID = 1 AND r.NAME = 'Актер';
+
+-- поиск режиссера, конкретного фильма
+SELECT p.NAME 
+FROM movie_person_role mpr
+INNER JOIN person p ON mpr.PERSON_ID = p.ID
+INNER JOIN role r ON mpr.ROLE_ID = r.ID
+WHERE mpr.MOVIE_ID = 2 AND r.NAME = 'Режиссер';
+
+-- получение списка фильмов, в которых играл конкретный актер
+SELECT m.TITLE, mv.RELEASE_YEAR 
+FROM movie_person_role mpr
+INNER JOIN movie mv ON mpr.MOVIE_ID = mv.ID
+INNER JOIN movie_title m ON mpr.MOVIE_ID = m.MOVIE_ID AND m.LANGUAGE_ID = 'ru'
+INNER JOIN role r ON mpr.ROLE_ID = r.ID
+WHERE mpr.PERSON_ID = 1 AND r.NAME = 'Актер';
+
+-- поиск всех фильмов, где участвовал человек в любой роли
+SELECT m.TITLE, mv.RELEASE_YEAR 
+FROM movie_person_role mpr
+INNER JOIN movie mv ON mpr.MOVIE_ID = mv.ID
+INNER JOIN movie_title m ON mpr.MOVIE_ID = m.MOVIE_ID AND m.LANGUAGE_ID = 'ru'
+WHERE mpr.PERSON_ID = 1;
+
+-- поиск всех людей, игравших одного и того же персонажа в разных фильмах
+SELECT p.NAME, m.TITLE 
+FROM movie_person_role mpr
+INNER JOIN person p ON mpr.PERSON_ID = p.ID
+INNER JOIN `character` ch ON mpr.MOVIE_ID = ch.MOVIE_ID AND mpr.PERSON_ID = ch.PERSON_ID
+INNER JOIN movie_title m ON mpr.MOVIE_ID = m.MOVIE_ID AND m.LANGUAGE_ID = 'ru'
+WHERE ch.CHARACTER_NAME = 'Терминатор';
+
+-- Задание 3
+
+-- Найти людей, которые одновременно были режиссером и продюссером какого-либо фильма
+SELECT DISTINCT p.ID, p.NAME
+FROM person p
+JOIN movie_person_role mpr_director ON p.ID = mpr_director.PERSON_ID AND mpr_director.ROLE_ID = (SELECT ID FROM role WHERE NAME = 'Режиссер')
+JOIN movie_person_role mpr_producer ON p.ID = mpr_producer.PERSON_ID AND mpr_producer.ROLE_ID = (SELECT ID FROM role WHERE NAME = 'Продюсер');
+
+-- Найти все фильмы, имеющие двойников по названию на русском языке
+SELECT mt1.MOVIE_ID AS MovieID1, mt2.MOVIE_ID AS MovieID2, mt1.TITLE AS Title
+FROM movie_title mt1
+JOIN movie_title mt2 ON mt1.TITLE = mt2.TITLE AND mt1.MOVIE_ID < mt2.MOVIE_ID
+WHERE mt1.LANGUAGE_ID = 'ru' AND mt2.LANGUAGE_ID = 'ru';
