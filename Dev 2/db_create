@@ -1,0 +1,54 @@
+USE work;
+
+--Задание 1
+
+CREATE TABLE person 
+(
+    ID int not null auto_increment,
+    NAME varchar(500) not null,
+    PRIMARY KEY (ID)
+);
+
+CREATE TABLE role 
+(
+    ID int not null auto_increment,
+    NAME varchar(500) not null,
+    PRIMARY KEY (ID)
+);
+
+CREATE TABLE movie_person_role 
+(
+    MOVIE_ID int not null,
+    PERSON_ID int not null,
+    ROLE_ID int not null,
+    PRIMARY KEY (MOVIE_ID, PERSON_ID, ROLE_ID),
+    FOREIGN KEY FK_MPR_MOVIE (MOVIE_ID)
+        REFERENCES movie(ID)
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT,
+    FOREIGN KEY FK_MPR_PERSON (PERSON_ID)
+        REFERENCES person(ID)
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT,
+    FOREIGN KEY FK_MPR_ROLE (ROLE_ID)
+        REFERENCES role(ID)
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT
+);
+
+CREATE TABLE `character`
+(
+    ID int not null auto_increment,
+    MOVIE_ID int not null,
+    PERSON_ID int not null,
+    CHARACTER_NAME varchar(500) not null,
+    PRIMARY KEY (ID),
+    FOREIGN KEY FK_CHAR_MOVIE (MOVIE_ID)
+        REFERENCES movie(ID)
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT,
+    FOREIGN KEY FK_CHAR_PERSON (PERSON_ID)
+        REFERENCES person(ID)
+        ON UPDATE RESTRICT
+        ON DELETE RESTRICT
+);
